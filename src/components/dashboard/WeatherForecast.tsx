@@ -1,128 +1,92 @@
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Cloud, CloudRain, Sun, Thermometer } from "lucide-react";
-
-const weatherData = [
-  { 
-    day: "Today", 
-    temp: 75, 
-    condition: "Sunny", 
-    icon: Sun,
-    precipitation: "0%",
-    humidity: "45%",
-    wind: "8 mph"
-  },
-  { 
-    day: "Tomorrow", 
-    temp: 72, 
-    condition: "Partly Cloudy", 
-    icon: Cloud,
-    precipitation: "10%",
-    humidity: "50%",
-    wind: "10 mph" 
-  },
-  { 
-    day: "Wednesday", 
-    temp: 68, 
-    condition: "Rain", 
-    icon: CloudRain,
-    precipitation: "80%",
-    humidity: "75%",
-    wind: "12 mph"
-  },
-  { 
-    day: "Thursday", 
-    temp: 71, 
-    condition: "Partly Cloudy", 
-    icon: Cloud,
-    precipitation: "20%",
-    humidity: "55%",
-    wind: "7 mph"
-  },
-  { 
-    day: "Friday", 
-    temp: 78, 
-    condition: "Sunny", 
-    icon: Sun,
-    precipitation: "0%",
-    humidity: "40%",
-    wind: "5 mph"
-  },
-  { 
-    day: "Saturday", 
-    temp: 80, 
-    condition: "Sunny", 
-    icon: Sun,
-    precipitation: "0%",
-    humidity: "35%",
-    wind: "4 mph"
-  },
-  { 
-    day: "Sunday", 
-    temp: 76, 
-    condition: "Partly Cloudy", 
-    icon: Cloud,
-    precipitation: "10%",
-    humidity: "45%",
-    wind: "6 mph"
-  },
-];
+import { useEffect, useState } from "react";
+import { getWeather } from "@/lib/api/getWeather";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sun, CloudRain, Cloud, Thermometer, AlertTriangle } from "lucide-react";
 
 export const WeatherForecast = () => {
-  // Today's details
-  const today = weatherData[0];
+  const [weather, setWeather] = useState<any>(null);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const data = await getWeather(lat, lon);
+        setWeather(data);
+      } catch (err) {
+        console.error(err);
+      }
+    });
+  }, []);
+
+  if (!weather) return <div className="p-4">Loading weather...</div>;
+
+  const forecast = weather.forecast.forecastday;
+  const today = forecast[0];
+
+  // Step 1: Filter days with high rainfall chances (e.g. >60%)
+  const rainfallAlerts = forecast.filter(
+    (day: any) => Number(day.day.daily_chance_of_rain) >= 60
+  );
 
   return (
-    <Card className="h-full">
-      <CardHeader className="bg-farm-sky-light/10">
-        <CardTitle className="text-farm-sky-dark">7-Day Weather Forecast</CardTitle>
-        <CardDescription>Local weather predictions for your farm area</CardDescription>
+    <Card>
+      <CardHeader>
+        <CardTitle>7-Day Weather Forecast</CardTitle>
+        <p>{weather.location.name}, {weather.location.country}</p>
       </CardHeader>
-      <CardContent className="pt-6">
-        <div className="grid gap-6">
-          {/* Today's detailed weather */}
-          <div className="flex items-center justify-between p-4 bg-farm-sky-light/5 rounded-lg">
-            <div className="flex items-center gap-4">
-              <div className="bg-farm-sky-light/20 p-3 rounded-full">
-                <today.icon className="h-8 w-8 text-farm-sky-dark" />
-              </div>
-              <div>
-                <p className="text-lg font-medium">{today.condition}</p>
-                <p className="text-sm text-muted-foreground">Today</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <div className="flex items-center gap-1">
-                <Thermometer className="h-4 w-4" />
-                <span className="text-2xl font-bold">{today.temp}°</span>
-              </div>
-              <div className="text-xs text-muted-foreground mt-1">
-                <span>Precip: {today.precipitation}</span> • 
-                <span> Humidity: {today.humidity}</span> • 
-                <span> Wind: {today.wind}</span>
-              </div>
-            </div>
+
+      <CardContent className="grid gap-4">
+        {/* 🌞 Today's Weather Summary */}
+        <div className="flex justify-between items-center bg-blue-100 p-4 rounded">
+          <div>
+            <p className="text-xl font-bold">{today.day.condition.text}</p>
+            <p className="text-sm">{today.date}</p>
           </div>
-          
-          {/* 7-day forecast */}
-          <div className="grid grid-cols-7 gap-2">
-            {weatherData.map((day, i) => (
-              <div key={day.day} className="text-center p-2">
-                <p className="text-xs font-medium">{day.day}</p>
-                <day.icon className="h-5 w-5 mx-auto my-2" />
-                <p className="text-sm font-medium">{day.temp}°</p>
-                <p className="text-xs text-muted-foreground">{day.precipitation}</p>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-2">
-            <p className="text-sm font-medium">Weather Impact Alert</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Rainfall expected on Wednesday - consider adjusting irrigation schedules. Optimal planting conditions this weekend.
-            </p>
+          <div className="text-2xl font-bold">
+            {today.day.avgtemp_c}°C
           </div>
         </div>
+
+        {/* 📅 7-Day Forecast */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3">
+          {forecast.map((day: any) => (
+            <div key={day.date} className="text-center p-2 border rounded">
+              <p className="text-sm font-medium">{day.date}</p>
+              <img
+                src={day.day.condition.icon}
+                alt={day.day.condition.text}
+                className="mx-auto w-10"
+              />
+              <p className="font-semibold">{day.day.avgtemp_c}°C</p>
+              <p className="text-xs">{day.day.condition.text}</p>
+              <p className="text-xs text-blue-500">
+                💧 Rain: {day.day.daily_chance_of_rain}%
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* 🌧️ Rainfall Alerts */}
+        {rainfallAlerts.length > 0 && (
+          <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 mt-4 rounded">
+            <div className="flex items-center gap-2 font-medium text-yellow-800">
+              <AlertTriangle className="h-5 w-5" />
+              Rainfall Alert
+            </div>
+            <ul className="mt-2 text-sm text-yellow-700 list-disc ml-6">
+              {rainfallAlerts.map((day: any) => (
+                <li key={day.date}>
+                  {day.date}: {day.day.condition.text} –{" "}
+                  {day.day.daily_chance_of_rain}% chance of rain. 
+                  {Number(day.day.daily_chance_of_rain) >= 80
+                    ? " ⚠️ Heavy rain expected. Plan irrigation and field access."
+                    : " Moderate rain – monitor field conditions."}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
