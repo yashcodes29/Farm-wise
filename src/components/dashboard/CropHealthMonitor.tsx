@@ -33,8 +33,7 @@ export const CropHealthMonitor = () => {
   const analyzeCrop = async () => {
     setLoading(true);
     try {
-      // Update the URL to match your backend
-      const res = await axios.post("http://localhost:5000/api/analyze", formData);
+      const res = await axios.post("http://localhost:3001/api/analyze", formData);
       const resultText = res.data;
 
       // Extract health score
