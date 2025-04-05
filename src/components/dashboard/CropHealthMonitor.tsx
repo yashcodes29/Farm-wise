@@ -36,14 +36,12 @@ export const CropHealthMonitor = () => {
       const res = await axios.post("http://localhost:3001/api/analyze", formData);
       const resultText = res.data;
 
-      // Extract health score
       const scoreMatch = resultText.match(/(?:score|overall score)[^\d]{0,10}(\d{1,3})/i);
       const score = scoreMatch ? parseInt(scoreMatch[1]) : null;
 
-      // Clean analysis: remove * characters
       const cleanedText = resultText
-        .replace(/[*_]+/g, "") // remove **bold** and *italic*
-        .replace(/score[^\d]{0,10}\d{1,3}\/?100?/i, "") // remove score line
+        .replace(/[*_]+/g, "")
+        .replace(/score[^\d]{0,10}\d{1,3}\/?100?/i, "")
         .trim();
 
       setHealthScore(score);
@@ -69,35 +67,53 @@ export const CropHealthMonitor = () => {
           <option value="Wheat">Wheat</option>
           <option value="Rice">Rice</option>
           <option value="Maize">Maize</option>
+          <option value="Sugarcane">Sugarcane</option>
+          <option value="Cotton">Cotton</option>
+          <option value="Barley">Barley</option>
+          <option value="Soybean">Soybean</option>
+          <option value="Groundnut">Groundnut</option>
+          <option value="Bajra">Bajra</option>
         </select>
 
-        <input
-          name="color"
-          placeholder="Color of Crop (Green, Yellow, Brown)"
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
+        <select name="color" onChange={handleChange} className="w-full p-2 border rounded">
+          <option value="">Color of Crop</option>
+          <option value="Dark Green">Dark Green</option>
+          <option value="Light Green">Light Green</option>
+          <option value="Yellow">Yellow</option>
+          <option value="Brown">Brown</option>
+          <option value="Pale Green">Pale Green</option>
+          <option value="Spotted">Spotted</option>
+        </select>
 
-        <input
-          name="leafSpots"
-          placeholder="Leaf Spots (None, Few, Many)"
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
+        <select name="leafSpots" onChange={handleChange} className="w-full p-2 border rounded">
+          <option value="">Leaf Spots</option>
+          <option value="None">None</option>
+          <option value="Few">Few</option>
+          <option value="Many">Many</option>
+          <option value="Circular">Circular</option>
+          <option value="Irregular">Irregular</option>
+          <option value="Large Dark">Large Dark</option>
+        </select>
 
-        <input
-          name="growthSpeed"
-          placeholder="Growth Speed (Fast, Normal, Slow)"
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
+        <select name="growthSpeed" onChange={handleChange} className="w-full p-2 border rounded">
+          <option value="">Growth Speed</option>
+          <option value="Very Fast">Very Fast</option>
+          <option value="Fast">Fast</option>
+          <option value="Normal">Normal</option>
+          <option value="Slow">Slow</option>
+          <option value="Stunted">Stunted</option>
+        </select>
 
-        <input
-          name="soilCondition"
-          placeholder="Soil Condition (Dry, Moist, Wet)"
-          onChange={handleChange}
-          className="w-full p-2 border rounded"
-        />
+        <select name="soilCondition" onChange={handleChange} className="w-full p-2 border rounded">
+          <option value="">Soil Condition</option>
+          <option value="Dry">Dry</option>
+          <option value="Moist">Moist</option>
+          <option value="Wet">Wet</option>
+          <option value="Cracked">Cracked</option>
+          <option value="Sandy">Sandy</option>
+          <option value="Clay">Clay</option>
+          <option value="Saline">Saline</option>
+        </select>
 
         <button
           onClick={analyzeCrop}
