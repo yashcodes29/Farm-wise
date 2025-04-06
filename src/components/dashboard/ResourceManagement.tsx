@@ -38,7 +38,7 @@ export const ResourceManagement = () => {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/resources", {
+      const res = await fetch("http://localhost:3001/api/resources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ crop, location, startDate, resources }),
