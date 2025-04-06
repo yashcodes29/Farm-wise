@@ -1,114 +1,26 @@
-// --- Imports ---
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import dotenv from "dotenv";
-import mongoose from "mongoose";
-import { Groq } from "groq-sdk";
-import fetch from "node-fetch"; // If using external APIs
+const express = require("express");
+const cors = require("cors");
+const bodyParser = require("body-parser");
+const dotenv = require("dotenv");
+const { Groq } = require("groq-sdk");
+const fetch = require("node-fetch"); // Only required if using external APIs
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = 3001; // Unified port
 
-// --- Middleware ---
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// --- MongoDB Connection ---
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("✅ Connected to MongoDB Atlas"))
-.catch((err) => console.error("❌ MongoDB connection error:", err));
-
-// --- Forum Schemas ---
-const replySchema = new mongoose.Schema({
-  author: String,
-  comment: String,
-  time: { type: Date, default: Date.now },
-});
-
-const commentSchema = new mongoose.Schema({
-  author: String,
-  comment: String,
-  time: { type: Date, default: Date.now },
-  replies: [replySchema],
-});
-
-const forumPostSchema = new mongoose.Schema({
-  title: String,
-  author: String,
-  tags: [String],
-  time: { type: Date, default: Date.now },
-  replies: { type: Number, default: 0 },
-  likes: { type: Number, default: 0 },
-  comments: [commentSchema],
-});
-
-const ForumPost = mongoose.model("ForumPost", forumPostSchema);
-
-// --- Forum Routes ---
-app.get("/api/forum-posts", async (req, res) => {
-  try {
-    const posts = await ForumPost.find().sort({ time: -1 });
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch posts" });
-  }
-});
-
-app.post("/api/forum-posts", async (req, res) => {
-  try {
-    const { title, author, tags } = req.body;
-    const newPost = new ForumPost({ title, author, tags });
-    const savedPost = await newPost.save();
-    res.status(201).json(savedPost);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to create post" });
-  }
-});
-
-app.post("/api/forum-posts/:id/comments", async (req, res) => {
-  try {
-    const { author, comment } = req.body;
-    const { id } = req.params;
-    const post = await ForumPost.findById(id);
-    if (!post) return res.status(404).json({ error: "Post not found" });
-    post.comments.push({ author, comment });
-    post.replies = post.comments.length;
-    const updatedPost = await post.save();
-    res.json(updatedPost);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to post comment" });
-  }
-});
-
-app.post("/api/forum-posts/:postId/comments/:commentIndex/reply", async (req, res) => {
-  try {
-    const { postId, commentIndex } = req.params;
-    const { author, comment } = req.body;
-    const post = await ForumPost.findById(postId);
-    if (!post || !post.comments[commentIndex])
-      return res.status(404).json({ error: "Post or comment not found" });
-    post.comments[commentIndex].replies.push({ author, comment });
-    post.markModified("comments");
-    const updatedPost = await post.save();
-    res.json(updatedPost);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to reply to comment" });
-  }
-});
-
-// --- Groq SDK ---
+// 🔐 Groq API setup
 const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY, // 🔐 Store securely in .env
+  apiKey: "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", // Replace with your secure method in production
 });
 
-// --- Crop Health Analyzer Route ---
+// -------- /api/analyze (Groq AI Crop Health Analysis) -------- //
 app.post("/api/analyze", async (req, res) => {
   const { cropName, color, leafSpots, growthSpeed, soilCondition } = req.body;
 
@@ -134,7 +46,7 @@ Give a brief health status, possible issues, and an overall score out of 100.`;
   }
 });
 
-// --- Resource Estimation Route ---
+// -------- /api/resources (Resource Estimation & Weather Plan) -------- //
 function validateInputs(crop, location, startDate, resources) {
   const cropPattern = /^[a-zA-Z\s]+$/;
   const locationPattern = /^[a-zA-Z\s]+$/;
@@ -154,8 +66,8 @@ const generateMockYearWeather = () => {
     const date = new Date(today.getFullYear(), i, 1);
     return {
       date: date.toISOString().split("T")[0],
-      temperature: Math.floor(20 + Math.random() * 15),
-      rainfall: Math.floor(Math.random() * 30),
+      temperature: Math.floor(20 + Math.random() * 15), // 20–35°C
+      rainfall: Math.floor(Math.random() * 30), // 0–30 mm
     };
   });
 };
@@ -169,9 +81,10 @@ function getFarmingStage(monthIndex) {
   return stages[monthIndex % stages.length];
 }
 
-function getRecommendations(weather, crop, resources) {
+const getRecommendations = (weather, crop, resources) => {
   return resources.map((res) => {
-    let advice = "", amount = "";
+    let advice = "";
+    let amount = "";
 
     if (res === "Water Usage") {
       if (weather.rainfall < 10) {
@@ -211,7 +124,7 @@ function getRecommendations(weather, crop, resources) {
 
     return { resource: res, advice, amount };
   });
-}
+};
 
 app.post("/api/resources", async (req, res) => {
   const { crop, location, startDate, resources } = req.body;
@@ -239,7 +152,7 @@ app.post("/api/resources", async (req, res) => {
   }
 });
 
-// --- Start Server ---
+// Start the unified server
 app.listen(PORT, () => {
-  console.log(`🚀 Unified server running at http://localhost:${PORT}`);
+  console.log(`✅ Unified server running at http://localhost:${PORT}`);
 });
