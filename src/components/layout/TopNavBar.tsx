@@ -24,22 +24,22 @@ export function TopNavBar() {
           <Sprout className="h-7 w-7 text-white" />
           <span className="text-2xl font-extrabold text-white tracking-wide drop-shadow">FarmWise</span>
         </div>
-        <div className="flex gap-2 md:gap-6">
-          {navItems.map((item) => (
-            <Link
-              key={item.title}
-              to={item.path}
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-all duration-200 hover:bg-white/20 hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-indigo-700 ${location.pathname === item.path ? "bg-white/20 text-yellow-300" : "text-white"}`}
-            >
-              {item.title}
-            </Link>
-          ))}
-        </div>
+        {user && (
+          <div className="flex gap-2 md:gap-6">
+            {navItems.map((item) => (
+              <Link
+                key={item.title}
+                to={item.path}
+                className={`px-3 py-2 rounded-md text-sm font-semibold transition-all duration-200 hover:bg-white/20 hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-indigo-700 ${location.pathname === item.path ? "bg-white/20 text-yellow-300" : "text-white"}`}
+              >
+                {item.title}
+              </Link>
+            ))}
+          </div>
+        )}
         <div className="flex items-center gap-2">
           {user ? (
-            <>
-              <UserButton afterSignOutUrl="/" />
-            </>
+            <UserButton afterSignOutUrl="/" />
           ) : (
             <>
               <SignInButton mode="modal">
