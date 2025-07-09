@@ -36,7 +36,7 @@ const stateDistricts: Record<string, string[]> = {
   "Tamil Nadu": ["Ariyalur", "Chengalpattu", "Chennai", "Coimbatore", "Cuddalore", "Dharmapuri", "Dindigul", "Erode", "Kallakurichi", "Kanchipuram", "Kanyakumari", "Karur", "Krishnagiri", "Madurai", "Mayiladuthurai", "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai", "Ramanathapuram", "Ranipet", "Salem", "Sivaganga", "Tenkasi", "Thanjavur", "Theni", "Thiruvallur", "Thiruvarur", "Thoothukudi", "Tiruchirappalli", "Tirunelveli", "Tirupathur", "Tiruppur", "Tiruvannamalai", "Vellore", "Viluppuram", "Virudhunagar"],
   "Telangana": ["Adilabad", "Bhadradri Kothagudem", "Hyderabad", "Jagtial", "Jangaon", "Jayashankar Bhupalpally", "Jogulamba Gadwal", "Kamareddy", "Karimnagar", "Khammam", "Komaram Bheem", "Mahabubabad", "Mahabubnagar", "Mancherial", "Medak", "Medchal–Malkajgiri", "Mulugu", "Nagarkurnool", "Nalgonda", "Narayanpet", "Nirmal", "Nizamabad", "Peddapalli", "Rajanna Sircilla", "Ranga Reddy", "Sangareddy", "Siddipet", "Suryapet", "Vikarabad", "Wanaparthy", "Warangal Rural", "Warangal Urban", "Yadadri Bhuvanagiri"],
   "Tripura": ["Dhalai", "Gomati", "Khowai", "North Tripura", "Sepahijala", "South Tripura", "Unakoti", "West Tripura"],
-  "Uttar Pradesh": ["Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Ayodhya", "Azamgarh", "Baghpat", "Bahraich", "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar", "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi", "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kheri", "Kushinagar", "Lalitpur", "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh", "Prayagraj", "Raebareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", "Sant Ravidas Nagar", "Shahjahanpur", "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"],
+  "Uttar Pradesh": ["Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Ayodhya", "Azamgarh", "Baghpat", "Bahraich", "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr", "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar", "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi", "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kheri", "Kushinagar", "Lalitpur", "Lucknow", "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit", "Pratapgarh", "Prayagraj", "Raebareli", "Rampur", "Saharanpur", "Sant Kabir Nagar", "Sant Ravidas Nagar", "Shahjahanpur", "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"],
   "Uttarakhand": ["Almora", "Bageshwar", "Chamoli", "Champawat", "Dehradun", "Haridwar", "Nainital", "Pauri Garhwal", "Pithoragarh", "Rudraprayag", "Tehri Garhwal", "Udham Singh Nagar", "Uttarkashi"],
   "West Bengal": ["Alipurduar", "Bankura", "Birbhum", "Cooch Behar", "Dakshin Dinajpur", "Darjeeling", "Hooghly", "Howrah", "Jalpaiguri", "Jhargram", "Kalimpong", "Kolkata", "Malda", "Murshidabad", "Nadia", "North 24 Parganas", "Paschim Bardhaman", "Paschim Medinipur", "Purba Bardhaman", "Purba Medinipur", "Purulia", "South 24 Parganas", "Uttar Dinajpur"],
   "Andaman and Nicobar Islands": ["Nicobar", "North and Middle Andaman", "South Andaman"],
@@ -54,17 +54,29 @@ const commodities = [
   "Banana", "Wheat", "Rice", "Maize", "Onion", "Potato", "Tomato", "Cotton", "Sugarcane", "Soybean", "Turmeric", "Mango", "Chilli", "Groundnut", "Barley", "Paddy", "Jowar", "Bajra", "Mustard", "Sunflower", "Peas", "Apple", "Grapes", "Orange", "Lemon", "Cabbage", "Cauliflower", "Carrot", "Brinjal", "Garlic", "Ginger", "Coriander", "Coconut", "Papaya", "Pomegranate", "Guava", "Watermelon", "Muskmelon"
 ];
 
+// Helper to parse DD/MM/YYYY to Date
 function parseDDMMYYYY(dateStr: string): Date | null {
-  // Expects DD/MM/YYYY
+  if (!dateStr) return null;
   const [day, month, year] = dateStr.split("/");
   if (!day || !month || !year) return null;
   return new Date(Number(year), Number(month) - 1, Number(day));
+}
+
+// Helper to format Date to DD/MM/YYYY
+function formatDDMMYYYY(date: Date): string {
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
 }
 
 export const MarketPrices = () => {
   const [prices, setPrices] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [multiDayData, setMultiDayData] = useState<{ date: string, records: any[], url: string }[]>([]);
+  const [fallbackData, setFallbackData] = useState<any[]>([]);
+  const [fallbackDate, setFallbackDate] = useState<string | null>(null);
 
   // Filter state
   const [state, setState] = useState("");
@@ -74,26 +86,37 @@ export const MarketPrices = () => {
   // Get districts for the selected state
   const availableDistricts = stateDistricts[state] || [];
 
-  // Fetch prices with filters when Fetch button is clicked
-  async function fetchPrices() {
+  // Fetch only the most recent available data for the selected filters
+  async function fetchMostRecent() {
     setLoading(true);
     setError(null);
+    setFallbackData([]);
+    setFallbackDate(null);
     let url = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json`;
     if (state) url += `&filters[state.keyword]=${encodeURIComponent(state)}`;
     if (district) url += `&filters[district]=${encodeURIComponent(district)}`;
     if (commodity) url += `&filters[commodity]=${encodeURIComponent(commodity)}`;
     try {
-      console.log("Fetching URL:", url);
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch market prices");
       const data = await res.json();
-      console.log("API response:", data);
-      setPrices(data.records || []);
+      if (data.records && data.records.length > 0) {
+        // Find the most recent date in the records
+        const sorted = [...data.records].sort((a, b) => {
+          const da = parseDDMMYYYY(a.arrival_date);
+          const db = parseDDMMYYYY(b.arrival_date);
+          return db && da ? db.getTime() - da.getTime() : 0;
+        });
+        setFallbackData(sorted);
+        setFallbackDate(sorted[0]?.arrival_date || null);
+      } else {
+        setFallbackData([]);
+        setFallbackDate(null);
+      }
     } catch (err: any) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
+    setLoading(false);
   }
 
   return (
@@ -149,7 +172,7 @@ export const MarketPrices = () => {
           </div>
           <button
             className="bg-primary text-primary-foreground font-semibold px-4 py-2 rounded shadow-sm hover:bg-primary/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 text-sm"
-            onClick={fetchPrices}
+            onClick={fetchMostRecent}
             disabled={loading}
           >
             {loading ? "Fetching..." : "Fetch"}
@@ -160,16 +183,15 @@ export const MarketPrices = () => {
         ) : error ? (
           <div className="p-6 text-center text-red-500">{error}</div>
         ) : (
-          <div>
-            {prices.length === 0 ? (
-              <div className="p-6 text-center text-muted-foreground">No data found for the selected filters.</div>
-            ) : (
-              <div className="w-full flex justify-center">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 w-full max-w-7xl">
-                  {prices.map((item, idx) => (
+          <div className="w-full flex flex-col items-center">
+            {fallbackData.length > 0 ? (
+              <div className="w-full flex flex-col items-center">
+                <div className="mb-2 font-semibold text-base text-center text-primary">Most Recent Available Data (Arrival: {fallbackDate})</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-5xl">
+                  {fallbackData.map((item, i) => (
                     <div
-                      key={idx}
-                      className="bg-white dark:bg-card border border-border rounded-2xl shadow-lg p-6 flex flex-col gap-4 items-center justify-between transition-shadow duration-200 hover:shadow-xl mx-auto min-w-[260px] max-w-xs"
+                      key={i}
+                      className="bg-white dark:bg-card border border-border rounded-2xl shadow-lg p-6 flex flex-col gap-4 items-center justify-between transition-shadow duration-200 hover:shadow-xl mx-auto min-w-[260px] max-w-xs mb-4"
                     >
                       <div className="flex flex-col items-center w-full mb-2 gap-1">
                         <span className="font-bold text-xl text-primary text-center">{item.commodity}</span>
@@ -186,6 +208,8 @@ export const MarketPrices = () => {
                   ))}
                 </div>
               </div>
+            ) : (
+              <div className="p-6 text-center text-muted-foreground">No data found for the selected filters.</div>
             )}
           </div>
         )}
