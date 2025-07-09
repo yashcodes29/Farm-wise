@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 export const CropHealthMonitor = () => {
   const [formData, setFormData] = useState({
@@ -55,14 +56,14 @@ export const CropHealthMonitor = () => {
   };
 
   return (
-    <Card>
-      <CardHeader className="bg-farm-leaf-dark/10">
-        <CardTitle className="text-farm-leaf-dark">Crop Health Monitor</CardTitle>
-        <CardDescription>Enter crop details for health analysis</CardDescription>
+    <Card className="transition-all duration-300 hover:shadow-lg">
+      <CardHeader className="bg-primary/10">
+        <CardTitle className="text-primary">Crop Health Monitor</CardTitle>
+        <CardDescription className="text-secondary-foreground">Enter crop details for health analysis</CardDescription>
       </CardHeader>
 
       <CardContent className="pt-6 space-y-4">
-        <select name="cropName" onChange={handleChange} className="w-full p-2 border rounded">
+        <select name="cropName" onChange={handleChange} className="w-full p-3 border rounded-md bg-background text-foreground border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
           <option value="">Select Crop</option>
           <option value="Wheat">Wheat</option>
           <option value="Rice">Rice</option>
@@ -75,7 +76,7 @@ export const CropHealthMonitor = () => {
           <option value="Bajra">Bajra</option>
         </select>
 
-        <select name="color" onChange={handleChange} className="w-full p-2 border rounded">
+        <select name="color" onChange={handleChange} className="w-full p-3 border rounded-md bg-background text-foreground border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
           <option value="">Color of Crop</option>
           <option value="Dark Green">Dark Green</option>
           <option value="Light Green">Light Green</option>
@@ -85,7 +86,7 @@ export const CropHealthMonitor = () => {
           <option value="Spotted">Spotted</option>
         </select>
 
-        <select name="leafSpots" onChange={handleChange} className="w-full p-2 border rounded">
+        <select name="leafSpots" onChange={handleChange} className="w-full p-3 border rounded-md bg-background text-foreground border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
           <option value="">Leaf Spots</option>
           <option value="None">None</option>
           <option value="Few">Few</option>
@@ -95,7 +96,7 @@ export const CropHealthMonitor = () => {
           <option value="Large Dark">Large Dark</option>
         </select>
 
-        <select name="growthSpeed" onChange={handleChange} className="w-full p-2 border rounded">
+        <select name="growthSpeed" onChange={handleChange} className="w-full p-3 border rounded-md bg-background text-foreground border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
           <option value="">Growth Speed</option>
           <option value="Very Fast">Very Fast</option>
           <option value="Fast">Fast</option>
@@ -104,7 +105,7 @@ export const CropHealthMonitor = () => {
           <option value="Stunted">Stunted</option>
         </select>
 
-        <select name="soilCondition" onChange={handleChange} className="w-full p-2 border rounded">
+        <select name="soilCondition" onChange={handleChange} className="w-full p-3 border rounded-md bg-background text-foreground border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200">
           <option value="">Soil Condition</option>
           <option value="Dry">Dry</option>
           <option value="Moist">Moist</option>
@@ -115,23 +116,24 @@ export const CropHealthMonitor = () => {
           <option value="Saline">Saline</option>
         </select>
 
-        <button
+        <Button
           onClick={analyzeCrop}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          disabled={loading}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105"
         >
-          Analyze
-        </button>
+          {loading ? "Analyzing..." : "Analyze Crop Health"}
+        </Button>
 
-        {loading && <p className="text-sm text-muted-foreground">Analyzing crop health...</p>}
-        {error && <p className="text-sm text-red-500">{error}</p>}
+        {loading && <p className="text-sm text-muted-foreground animate-pulse">Analyzing crop health...</p>}
+        {error && <p className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</p>}
 
         {(aiAnalysis || healthScore !== null) && (
-          <div className="bg-gray-50 border border-gray-200 p-4 rounded space-y-4 text-sm mt-4">
+          <div className="bg-background border border-border p-4 rounded-md space-y-4 text-sm mt-4 animate-fade-in">
             {healthScore !== null && (
               <>
                 <div className="flex justify-between items-center">
-                  <span className="font-medium text-green-700">Health Score:</span>
-                  <span className="text-green-700 font-semibold">{healthScore}/100</span>
+                  <span className="font-medium text-primary">Health Score:</span>
+                  <span className="text-primary font-semibold">{healthScore}/100</span>
                 </div>
                 <Progress value={healthScore} className="h-2" />
               </>
@@ -139,8 +141,8 @@ export const CropHealthMonitor = () => {
 
             {aiAnalysis && (
               <div>
-                <p className="font-medium text-gray-700">AI Analysis:</p>
-                <p className="text-gray-600 whitespace-pre-wrap">{aiAnalysis}</p>
+                <p className="font-medium text-primary mb-2">AI Analysis:</p>
+                <p className="text-foreground whitespace-pre-wrap bg-muted/50 p-3 rounded-md">{aiAnalysis}</p>
               </div>
             )}
 
