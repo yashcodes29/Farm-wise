@@ -8,6 +8,10 @@ import NotFound from "./pages/NotFound";
 import Weather from "./pages/Weather";
 import MainLayout from "@/components/layout/MainLayout";
 import { ClerkProvider } from "@clerk/clerk-react";
+import { CropHealthMonitor } from "@/components/dashboard/CropHealthMonitor";
+import { MarketPrices } from "@/components/dashboard/MarketPrices";
+import { CommunityForum } from "@/components/dashboard/CommunityForum";
+import { ResourceManagement } from "@/components/dashboard/ResourceManagement";
 
 const queryClient = new QueryClient();
 
@@ -25,10 +29,10 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/weather" element={<Weather />} />
-                <Route path="/crop-health" element={<Index />} />
-                <Route path="/resources" element={<Index />} />
-                <Route path="/market" element={<Index />} />
-                <Route path="/community" element={<Index />} />
+                <Route path="/crop-health" element={<CropHealthMonitor />} />
+                <Route path="/resources" element={<ResourceManagement />} />
+                <Route path="/market" element={<MarketPrices />} />
+                <Route path="/community" element={<CommunityForum />} />
                 <Route path="/analytics" element={<Index />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>

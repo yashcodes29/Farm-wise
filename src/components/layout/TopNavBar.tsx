@@ -1,43 +1,34 @@
-import { Link, useLocation } from "react-router-dom";
 import { Sprout } from "lucide-react";
-import { UserButton, SignInButton, SignUpButton, useUser, useClerk } from "@clerk/clerk-react";
-
-const navItems = [
-  { title: "Dashboard", path: "/" },
-  { title: "Weather", path: "/weather" },
-  { title: "Crop Health", path: "/crop-health" },
-  { title: "Resource Management", path: "/resources" },
-  { title: "Market Prices", path: "/market" },
-  { title: "Community", path: "/community" },
-  { title: "Analytics", path: "/analytics" },
-];
+import { UserButton, SignInButton, SignUpButton, useUser } from "@clerk/clerk-react";
+import { Link, useLocation } from "react-router-dom";
 
 export function TopNavBar() {
-  const location = useLocation();
   const { user } = useUser();
-  const { signOut } = useClerk();
+  const location = useLocation();
 
   return (
     <nav className="sticky top-0 z-50 w-full bg-gradient-to-r from-indigo-700 via-purple-600 to-blue-500 shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 flex items-center justify-between h-16">
-        <div className="flex items-center gap-3">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 flex items-center justify-between h-16">
+        <div className="flex-1 flex items-center justify-center sm:justify-start gap-3">
           <Sprout className="h-7 w-7 text-white" />
           <span className="text-2xl font-extrabold text-white tracking-wide drop-shadow">FarmWise</span>
         </div>
-        {user && (
-          <div className="flex gap-2 md:gap-6">
-            {navItems.map((item) => (
-              <Link
-                key={item.title}
-                to={item.path}
-                className={`px-3 py-2 rounded-md text-sm font-semibold transition-all duration-200 hover:bg-white/20 hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-indigo-700 ${location.pathname === item.path ? "bg-white/20 text-yellow-300" : "text-white"}`}
-              >
-                {item.title}
-              </Link>
-            ))}
-          </div>
-        )}
         <div className="flex items-center gap-2">
+          <Link
+            to="/"
+            className={`hidden sm:inline-block px-4 py-2 rounded-md text-sm font-semibold transition-all duration-200 bg-white/10 text-white hover:bg-white/20 hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-indigo-700 ${location.pathname === '/' ? 'bg-white/20 text-yellow-300' : ''}`}
+          >
+            Home
+          </Link>
+          <Link
+            to="/"
+            className={`sm:hidden flex items-center justify-center px-2 py-1 rounded-md text-base font-bold bg-white/10 text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-indigo-700 ${location.pathname === '/' ? 'bg-white/20 text-yellow-300' : ''}`}
+            aria-label="Home"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l9-9 9 9M4 10v10a1 1 0 001 1h3m10-11v10a1 1 0 01-1 1h-3m-6 0h6" />
+            </svg>
+          </Link>
           {user ? (
             <UserButton afterSignOutUrl="/" />
           ) : (

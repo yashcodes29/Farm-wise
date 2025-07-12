@@ -196,15 +196,15 @@ export const MarketPrices = () => {
                       <div className="flex flex-col items-center w-full mb-2 gap-1">
                         <span className="font-bold text-xl text-primary text-center">{item.commodity}</span>
                         <span className="text-xs bg-accent px-3 py-1 rounded-full text-accent-foreground mt-1">{item.variety}</span>
-                      </div>
+                  </div>
                       <div className="text-sm text-muted-foreground text-center mb-2 w-full">{item.market}, {item.district}, {item.state}</div>
                       <div className="flex flex-row flex-wrap gap-3 justify-center w-full mb-2">
                         <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-lg text-xs font-semibold">Min: ₹{item.min_price}</span>
                         <span className="bg-green-100 text-green-800 px-3 py-1 rounded-lg text-xs font-semibold">Max: ₹{item.max_price}</span>
                         <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-lg text-xs font-semibold">Modal: ₹{item.modal_price}</span>
-                      </div>
+                </div>
                       <div className="text-xs text-center text-muted-foreground w-full mt-auto pt-2 border-t border-border">Arrival: {item.arrival_date}</div>
-                    </div>
+                </div>
                   ))}
                 </div>
               </div>
