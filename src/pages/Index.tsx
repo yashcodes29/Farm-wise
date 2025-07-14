@@ -1,5 +1,6 @@
 
 import { useUser } from "@clerk/clerk-react";
+import { SignInButton, SignUpButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { CloudSun, Leaf, Activity, ShoppingCart, Users, BarChart3 } from "lucide-react";
 
@@ -28,6 +29,22 @@ const Index = () => {
         <p className="text-base sm:text-lg md:text-xl text-secondary-foreground mb-4 max-w-xl text-center animate-fade-in">
           <span className="font-semibold text-accent">FarmWise</span> is your all-in-one smart farming assistant. Sign in to get started!
         </p>
+        {/* Context message before sign in */}
+        <div className="mb-4 text-center text-lg text-primary font-semibold bg-yellow-100 border border-yellow-300 rounded px-4 py-2 shadow animate-fade-in">
+          Sign in to use all the features.
+        </div>
+        <div className="flex gap-4 mb-4">
+          <SignInButton mode="modal">
+            <button className="bg-primary text-primary-foreground font-semibold px-5 py-2 rounded-md shadow-sm hover:bg-primary/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 text-base">
+              Sign In
+            </button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button className="bg-secondary text-secondary-foreground font-semibold px-5 py-2 rounded-md border border-primary/20 shadow-sm hover:bg-secondary/90 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 text-base">
+              Sign Up
+            </button>
+          </SignUpButton>
+        </div>
       </div>
     );
   }

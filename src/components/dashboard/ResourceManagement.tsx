@@ -18,8 +18,8 @@ export const ResourceManagement = () => {
   const [location, setLocation] = useState("");
   const [startDate, setStartDate] = useState("");
   const [resources, setResources] = useState([]);
-  const [plan, setPlan] = useState([]);
-  const [summary, setSummary] = useState([]);
+  const [farmSize, setFarmSize] = useState("");
+  const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const toggleResource = (resource) => {
@@ -31,8 +31,8 @@ export const ResourceManagement = () => {
   };
 
   const handleSubmit = async () => {
-    if (!crop || !location || !startDate || resources.length === 0) {
-      alert("Please fill in all fields.");
+    if (!crop || !location || !startDate || resources.length === 0 || !farmSize) {
+      alert("Please fill in all fields, including farm size.");
       return;
     }
 
@@ -41,15 +41,93 @@ export const ResourceManagement = () => {
       const res = await fetch("http://localhost:3001/api/resources", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ crop, location, startDate, resources }),
+        body: JSON.stringify({ crop, location, startDate, resources, farmSize }),
       });
       const data = await res.json();
-      setPlan(data.plan || []);
-      setSummary(data.summary || []);
+      setPlan(data.plan);
     } catch (err) {
       console.error("Error fetching resource plan:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const renderPlan = () => {
+    if (!plan) return null;
+
+    try {
+      // Try to parse if it's a JSON string
+      const parsedPlan = typeof plan === 'string' ? JSON.parse(plan) : plan;
+      const planArray = Array.isArray(parsedPlan) ? parsedPlan : [parsedPlan];
+
+      return (
+        <div className="mt-6 space-y-6">
+          <h3 className="text-xl font-semibold text-primary">
+            Resource Plan for {crop} in {location} ({farmSize} acres)
+          </h3>
+          {planArray.map((item, index) => (
+            <Card key={index} className="border-l-4 border-primary">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  {item.resource === 'Water Usage' && '💧 Water Usage'}
+                  {item.resource === 'Fertilizer' && '🌱 Fertilizer'}
+                  {item.resource === 'Pesticide' && '🧪 Pesticide'}
+                  {!['Water Usage', 'Fertilizer', 'Pesticide'].includes(item.resource) && 
+                    (item.resource || 'Resource Plan')}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {item.amount && (
+                  <div className="bg-secondary/10 p-3 rounded">
+                    <h4 className="font-medium text-primary">Amount Needed:</h4>
+                    {typeof item.amount === 'object' && item.amount !== null && !Array.isArray(item.amount) ? (
+                      <ul className="list-disc pl-5">
+                        {Object.entries(item.amount).map(([key, value]) => (
+                          <li key={key} className="text-foreground">
+                            <span className="font-semibold">{key}:</span> {String(value)}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>{String(item.amount).replace(/"/g, '')}</p>
+                    )}
+                  </div>
+                )}
+                {item.advice && (
+                  <div className="bg-secondary/5 p-3 rounded">
+                    <h4 className="font-medium text-primary">Recommendations:</h4>
+                    <div className="mt-1 space-y-2">
+                      {item.advice.split('\n').map((line, i) => (
+                        <p key={i} className="text-foreground">
+                          {line.replace(/"/g, '').replace(/\*/g, '•')}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+          <div className="text-sm text-muted-foreground italic mt-4">
+            Note: The provided plan is a general guideline and may need adjustment based on local conditions. 
+            Always consult with local agricultural experts for advice tailored to your farm's specific needs.
+          </div>
+        </div>
+      );
+    } catch (error) {
+      // Fallback display if parsing fails
+      return (
+        <Card className="mt-6 border-l-4 border-primary">
+          <CardHeader>
+            <CardTitle>Resource Plan</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="whitespace-pre-line">
+              {typeof plan === 'string' ? plan : JSON.stringify(plan, null, 2)}
+            </div>
+          </CardContent>
+        </Card>
+      );
     }
   };
 
@@ -81,6 +159,15 @@ export const ResourceManagement = () => {
             onChange={(e) => setStartDate(e.target.value)}
             className="bg-background text-foreground border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
           />
+          <Input
+            type="number"
+            min="0.1"
+            step="0.1"
+            placeholder="Farm Size (acres)"
+            value={farmSize}
+            onChange={(e) => setFarmSize(e.target.value)}
+            className="bg-background text-foreground border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200"
+          />
         </div>
 
         <div className="flex gap-4 flex-wrap">
@@ -104,36 +191,7 @@ export const ResourceManagement = () => {
           {loading ? "Generating..." : "Generate Resource Plan"}
         </Button>
 
-        {plan.length > 0 && (
-          <div className="mt-4 space-y-6 max-h-[400px] overflow-y-scroll">
-            {plan.map((entry, i) => (
-              <div key={i} className="p-4 border rounded-lg bg-background border-border transition-all duration-200 hover:shadow-md">
-                <h3 className="text-lg font-semibold text-primary">{entry.date} - {entry.stage}</h3>
-                <p className="text-sm mb-1 text-secondary-foreground">🌡 Temp: {entry.temperature}°C | 🌧 Rain: {entry.rainfall}mm</p>
-                <ul className="list-disc pl-6 space-y-1">
-                  {entry.recommendations.map((rec, j) => (
-                    <li key={j} className="text-foreground">
-                      <strong className="text-primary">{rec.resource}</strong> ({rec.amount}): {rec.advice} [{rec.activity}]
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {summary.length > 0 && (
-          <div className="mt-6 border-t pt-4">
-            <h3 className="text-xl font-semibold text-primary">📦 Resource Buying Summary</h3>
-            <ul className="list-disc pl-6 mt-2 space-y-1">
-              {summary.map((item, i) => (
-                <li key={i} className="text-foreground">
-                  <strong className="text-secondary">{item.resource}:</strong> {item.totalAmount} — {item.notes}
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        {renderPlan()}
       </CardContent>
     </Card>
   );

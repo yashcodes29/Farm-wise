@@ -10,6 +10,18 @@ export function TopNavBar() {
     <nav className="sticky top-0 z-50 w-full bg-gradient-to-r from-indigo-700 via-purple-600 to-blue-500 shadow-lg">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 flex items-center justify-between h-16">
         <div className="flex-1 flex items-center justify-center sm:justify-start gap-3">
+          {/* Back button, only show if not on home page */}
+          {location.pathname !== '/' && (
+            <button
+              onClick={() => window.history.back()}
+              className="mr-2 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 text-white p-2 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-indigo-700"
+              aria-label="Go Back"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+            </button>
+          )}
           <Sprout className="h-7 w-7 text-white" />
           <span className="text-2xl font-extrabold text-white tracking-wide drop-shadow">FarmWise</span>
         </div>
