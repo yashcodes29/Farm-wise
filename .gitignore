@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+# Environment variables - Contains secrets!
+.env
+*/.env
+
+# Large database files
+data/dataset/db/
+
+# Other common files to ignore
+node_modules
