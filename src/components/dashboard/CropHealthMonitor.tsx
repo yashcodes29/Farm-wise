@@ -34,7 +34,7 @@ export const CropHealthMonitor = () => {
   const analyzeCrop = async () => {
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:3001/api/analyze", formData);
+      const res = await axios.post("https://farm-wise-93ni.onrender.com/api/analyze", formData);
       const resultText = res.data;
 
       const scoreMatch = resultText.match(/(?:score|overall score)[^\d]{0,10}(\d{1,3})/i);

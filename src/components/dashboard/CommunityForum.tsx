@@ -25,13 +25,13 @@ export const CommunityForum = () => {
   }, []);
 
   const fetchPosts = async () => {
-    const res = await fetch("http://localhost:3001/api/forum-posts");
+    const res = await fetch("https://farm-wise-93ni.onrender.com/api/forum-posts");
     const data = await res.json();
     setPosts(data);
   };
 
   const handleNewPostSubmit = async () => {
-    await fetch("http://localhost:3001/api/forum-posts", {
+    await fetch("https://farm-wise-93ni.onrender.com/api/forum-posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -49,7 +49,7 @@ export const CommunityForum = () => {
     if (!selectedPost || reply.commentIndex === null) return;
 
     await fetch(
-      `http://localhost:3001/api/forum-posts/${selectedPost._id}/comments/${reply.commentIndex}/reply`,
+      `https://farm-wise-93ni.onrender.com/api/forum-posts/${selectedPost._id}/comments/${reply.commentIndex}/reply`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -57,7 +57,7 @@ export const CommunityForum = () => {
       }
     );
     setReply({ author: "", comment: "", commentIndex: null });
-    const updated = await fetch(`http://localhost:3001/api/forum-posts`);
+    const updated = await fetch(`https://farm-wise-93ni.onrender.com/api/forum-posts`);
     const allPosts = await updated.json();
     const refreshed = allPosts.find(p => p._id === selectedPost._id);
     setSelectedPost(refreshed);
