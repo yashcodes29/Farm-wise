@@ -5,7 +5,6 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { Groq } from "groq-sdk";
-import fetch from "node-fetch"; // If using external APIs
 
 dotenv.config();
 
@@ -17,13 +16,22 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// --- MongoDB Connection ---
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log("✅ Connected to MongoDB Atlas"))
-.catch((err) => console.error("❌ MongoDB connection error:", err));
+// --- MongoDB Connection (with error handling) ---
+const connectDB = async () => {
+  try {
+    if (process.env.MONGO_URI) {
+      await mongoose.connect(process.env.MONGO_URI);
+      console.log("✅ Connected to MongoDB Atlas");
+    } else {
+      console.log("⚠️  MONGO_URI not found in .env - Forum features will be disabled");
+    }
+  } catch (err) {
+    console.log("⚠️  MongoDB connection failed - Forum features will be disabled");
+    console.log("   To enable forum features, add MONGO_URI to your .env file");
+  }
+};
+
+connectDB();
 
 // --- Forum Schemas ---
 const replySchema = new mongoose.Schema({
@@ -54,6 +62,9 @@ const ForumPost = mongoose.model("ForumPost", forumPostSchema);
 // --- Forum Routes ---
 app.get("/api/forum-posts", async (req, res) => {
   try {
+    if (!process.env.MONGO_URI) {
+      return res.status(503).json({ error: "Forum service unavailable - MongoDB not configured" });
+    }
     const posts = await ForumPost.find().sort({ time: -1 });
     res.json(posts);
   } catch (err) {
@@ -63,6 +74,9 @@ app.get("/api/forum-posts", async (req, res) => {
 
 app.post("/api/forum-posts", async (req, res) => {
   try {
+    if (!process.env.MONGO_URI) {
+      return res.status(503).json({ error: "Forum service unavailable - MongoDB not configured" });
+    }
     const { title, author, tags } = req.body;
     const newPost = new ForumPost({ title, author, tags });
     const savedPost = await newPost.save();
@@ -74,6 +88,9 @@ app.post("/api/forum-posts", async (req, res) => {
 
 app.post("/api/forum-posts/:id/comments", async (req, res) => {
   try {
+    if (!process.env.MONGO_URI) {
+      return res.status(503).json({ error: "Forum service unavailable - MongoDB not configured" });
+    }
     const { author, comment } = req.body;
     const { id } = req.params;
     const post = await ForumPost.findById(id);
@@ -89,6 +106,9 @@ app.post("/api/forum-posts/:id/comments", async (req, res) => {
 
 app.post("/api/forum-posts/:postId/comments/:commentIndex/reply", async (req, res) => {
   try {
+    if (!process.env.MONGO_URI) {
+      return res.status(503).json({ error: "Forum service unavailable - MongoDB not configured" });
+    }
     const { postId, commentIndex } = req.params;
     const { author, comment } = req.body;
     const post = await ForumPost.findById(postId);
@@ -104,13 +124,25 @@ app.post("/api/forum-posts/:postId/comments/:commentIndex/reply", async (req, re
 });
 
 // --- Groq SDK ---
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY, // 🔐 Store securely in .env
-});
+let groq;
+try {
+  groq = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+  });
+} catch (err) {
+  console.log("⚠️  GROQ_API_KEY not found in .env - AI analysis will be disabled");
+}
 
 // --- Crop Health Analyzer Route ---
 app.post("/api/analyze", async (req, res) => {
   const { cropName, color, leafSpots, growthSpeed, soilCondition } = req.body;
+
+  if (!groq) {
+    return res.status(503).json({ 
+      error: "AI analysis service unavailable - GROQ_API_KEY not configured",
+      message: "To enable AI crop analysis, add GROQ_API_KEY to your .env file"
+    });
+  }
 
   const prompt = `Analyze the crop health based on the following data:
 - Crop: ${cropName}
@@ -135,29 +167,49 @@ Give a brief health status, possible issues, and an overall score out of 100.`;
 });
 
 // --- Resource Estimation Route ---
-function validateInputs(crop, location, startDate, resources) {
+function validateInputs(crop, location, startDate, resources, farmSize) {
   const cropPattern = /^[a-zA-Z\s]+$/;
   const locationPattern = /^[a-zA-Z\s]+$/;
   const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+  const farmSizePattern = /^\d+(\.\d+)?$/;
 
   return (
     crop && cropPattern.test(crop) &&
     location && locationPattern.test(location) &&
     startDate && datePattern.test(startDate) &&
-    Array.isArray(resources) && resources.length > 0
+    Array.isArray(resources) && resources.length > 0 &&
+    farmSize && farmSizePattern.test(farmSize) && Number(farmSize) > 0
   );
 }
 
-const generateMockYearWeather = () => {
-  const today = new Date();
-  return Array.from({ length: 12 }, (_, i) => {
-    const date = new Date(today.getFullYear(), i, 1);
-    return {
-      date: date.toISOString().split("T")[0],
-      temperature: Math.floor(20 + Math.random() * 15),
-      rainfall: Math.floor(Math.random() * 30),
-    };
-  });
+const fetchMonthlyWeather = async (location, startDate, months = 12) => {
+  // Use OpenWeatherMap Geocoding API to get lat/lon
+  const geoRes = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${process.env.OPENWEATHER_API_KEY}`);
+  const geoData = await geoRes.json();
+  if (!geoData[0]) throw new Error("Location not found");
+  const { lat, lon } = geoData[0];
+
+  // Use One Call API for current and forecast (daily, up to 7 days)
+  // For longer range, we simulate by repeating the 7-day forecast for each month
+  const weatherRes = await fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly,alerts&units=metric&appid=${process.env.OPENWEATHER_API_KEY}`);
+  const weatherData = await weatherRes.json();
+  if (!weatherData.daily) throw new Error("Weather data not available");
+
+  // Generate monthly weather by averaging available daily data for each month
+  const start = new Date(startDate);
+  let monthlyWeather = [];
+  for (let i = 0; i < months; i++) {
+    const monthDate = new Date(start.getFullYear(), start.getMonth() + i, 1);
+    // Use the 7-day forecast as a proxy for each month (OpenWeatherMap free tier limitation)
+    const daily = weatherData.daily[i % weatherData.daily.length];
+    monthlyWeather.push({
+      date: monthDate.toISOString().split("T")[0],
+      temperature: daily.temp.day,
+      rainfall: daily.rain || 0,
+      weatherDesc: daily.weather[0]?.description || "",
+    });
+  }
+  return monthlyWeather;
 };
 
 function getFarmingStage(monthIndex) {
@@ -214,32 +266,75 @@ function getRecommendations(weather, crop, resources) {
 }
 
 app.post("/api/resources", async (req, res) => {
-  const { crop, location, startDate, resources } = req.body;
+  const { crop, location, startDate, resources, farmSize } = req.body;
 
-  if (!validateInputs(crop, location, startDate, resources)) {
+  // Simple validation
+  if (!crop || !location || !startDate || !resources || !resources.length || !farmSize) {
     return res.status(400).json({
-      error: "Invalid input. Please enter valid crop name, location, date, and resources.",
+      error: "All fields (crop, location, startDate, resources, farmSize) are required."
+    });
+  }
+
+  if (!groq) {
+    return res.status(503).json({
+      error: "AI analysis service unavailable - GROQ_API_KEY not configured",
+      message: "To enable AI crop analysis, add GROQ_API_KEY to your .env file"
     });
   }
 
   try {
-    const weatherData = generateMockYearWeather();
-    const plan = weatherData.map((day, i) => ({
-      date: day.date,
-      temperature: day.temperature,
-      rainfall: day.rainfall,
-      stage: getFarmingStage(i),
-      recommendations: getRecommendations(day, crop, resources),
-    }));
-
-    res.json({ plan });
+    const prompt = `You are an expert farm planner. Given the following data, generate a detailed, actionable resource plan dont inlcucde any json, brackets or anythign, give proper in list or textual/paragraph/list format only, for the entire season.\n\nCrop: ${crop}\nLocation: ${location}\nStart Date: ${startDate}\nFarm Size: ${farmSize} acres\nResources to plan: ${resources.join(", ")}\n\nFor each resource, specify what to do, how much to use (scaled for farm size), and any special advice. Format as a resource, advice, and amount fields for each resource.`;
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "llama-3.3-70b-versatile",
+    });
+    let aiPlan;
+    try {
+      aiPlan = JSON.parse(chatCompletion.choices[0].message.content);
+    } catch {
+      aiPlan = chatCompletion.choices[0].message.content;
+    }
+    res.json({ plan: aiPlan });
   } catch (error) {
     console.error("❌ Error generating plan:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
 
+// --- Health Check Route ---
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    services: {
+      server: "running",
+      mongodb: process.env.MONGO_URI ? "configured" : "not configured",
+      groq: process.env.GROQ_API_KEY ? "configured" : "not configured"
+    },
+    endpoints: [
+      "GET  /api/health",
+      "GET  /api/forum-posts",
+      "POST /api/forum-posts", 
+      "POST /api/forum-posts/:id/comments",
+      "POST /api/forum-posts/:postId/comments/:commentIndex/reply",
+      "POST /api/analyze",
+      "POST /api/resources"
+    ]
+  });
+});
+
 // --- Start Server ---
 app.listen(PORT, () => {
-  console.log(`🚀 Unified server running at http://localhost:${PORT}`);
-});
+  console.log(`🚀 Unified Farmhub server running at http://localhost:${PORT}`);
+  console.log(`📊 Available endpoints:`);
+  console.log(`   - GET  /api/health`);
+  console.log(`   - GET  /api/forum-posts`);
+  console.log(`   - POST /api/forum-posts`);
+  console.log(`   - POST /api/forum-posts/:id/comments`);
+  console.log(`   - POST /api/forum-posts/:postId/comments/:commentIndex/reply`);
+  console.log(`   - POST /api/analyze`);
+  console.log(`   - POST /api/resources`);
+  console.log(`\n💡 To enable all features, create a .env file with:`);
+  console.log(`   MONGO_URI=your_mongodb_connection_string`);
+  console.log(`   GROQ_API_KEY=your_groq_api_key`);
+  console.log(`   OPENWEATHER_API_KEY=your_openweather_api_key`);
+}); 
